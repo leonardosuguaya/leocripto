@@ -1,0 +1,34 @@
+import requests
+from telegram import Bot
+from telegram.ext import Updater, CommandHandler, CallbackContext, Command
+
+# Substitua pelo seu token
+TOKEN = '7730209368:AAFrXnaOrGRmNBp8WzS1ktwBe1jqxZNAhOY'
+
+def start(update, context):
+    print("Comando /start recebido")  # Isso ajuda a ver se o comando chega
+    update.message.reply_text('Olá, sou seu especialista em criptomoedas!')
+
+def get_crypto(update, context):
+    # Obtendo dados do CoinGecko (exemplo)
+    response = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd')
+    data = response.json()
+    
+    bitcoin_price = data['bitcoin']['usd']
+    ethereum_price = data['ethereum']['usd']
+    
+    message = f'Preço atual:\nBitcoin: ${bitcoin_price}\nEthereum: ${ethereum_price}'
+    update.message.reply_text(message)
+
+def main():
+    updater = Updater(TOKEN)
+    dp = updater.dispatcher
+    
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("crypto", get_crypto))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
