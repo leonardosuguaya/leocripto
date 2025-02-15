@@ -1,33 +1,36 @@
+import os
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
 import requests
-from telegram import Bot
-from telegram.ext import Updater, CommandHandler, CallbackContext, Command
 
-# Substitua pelo seu token
+# Coloque o seu token do Telegram aqui
 TOKEN = '7730209368:AAFrXnaOrGRmNBp8WzS1ktwBe1jqxZNAhOY'
 
-def start(update, context):
-    print("Comando /start recebido")  # Isso ajuda a ver se o comando chega
-    update.message.reply_text('Olá, sou seu especialista em criptomoedas!')
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Olá! Eu sou o seu bot de criptomoedas.')
 
-def get_crypto(update, context):
-    # Obtendo dados do CoinGecko (exemplo)
-    response = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd')
+def get_crypto(update: Update, context: CallbackContext) -> None:
+    # Exemplo de consulta à API CoinGecko para pegar dados de Bitcoin
+    response = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
     data = response.json()
-    
-    bitcoin_price = data['bitcoin']['usd']
-    ethereum_price = data['ethereum']['usd']
-    
-    message = f'Preço atual:\nBitcoin: ${bitcoin_price}\nEthereum: ${ethereum_price}'
-    update.message.reply_text(message)
+    price = data['bitcoin']['usd']
+    update.message.reply_text(f'O preço do Bitcoin é ${price}.')
 
-def main():
+def main() -> None:
+    # Inicializa o bot
     updater = Updater(TOKEN)
-    dp = updater.dispatcher
-    
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("crypto", get_crypto))
 
+    # Obtém o despachante do bot
+    dispatcher = updater.dispatcher
+
+    # Adiciona os handlers para os comandos
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("crypto", get_crypto))
+
+    # Começa a escutar os comandos
     updater.start_polling()
+
+    # Para o bot quando o processo é interrompido
     updater.idle()
 
 if __name__ == '__main__':
